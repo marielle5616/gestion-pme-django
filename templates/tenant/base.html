@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex min-h-screen">
+    <!-- SIDEBAR FIXE -->
+    <aside class="w-[260px] bg-[#4361ee] text-white p-6 fixed h-screen hidden md:block">
+        <h2 class="text-2xl font-black mb-10">BizManager</h2>
+        <nav class="space-y-2">
+            <a href="{% url 'tenant_dashboard' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/20"> Tableau de bord</a>
+            <a href="{% url 'clients_list' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/20"> Clients</a>
+            <a href="{% url 'products_list' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/20">Produits</a>
+            <a href="{% url 'invoices_list' %}" class="flex items-center gap-3 p-3 rounded-xl bg-white/20 font-bold"> Factures</a>
+            <a href="{% url 'quotes_list' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/20"> Devis</a>
+            <a href="{% url 'settings' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/20"> Paramètres</a>
+        </nav>
+    </aside>
+
+    <!-- CONTENU -->
+    <main class="flex-1 md:ml-[260px] bg-[#f8fafc] p-4 md:p-8 min-h-screen">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="mb-4 p-4 rounded-xl bg-green-100 text-green-700 text-sm">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {{ block.super }}
+    </main>
+</div>
+{% endblock %}

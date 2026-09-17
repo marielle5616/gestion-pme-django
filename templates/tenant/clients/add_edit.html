@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}{% if client %}Modifier Client{% else %}Nouveau Client{% endif %} - BizManager{% endblock %}
+{% block header_title %}{% if client %}Modifier Client{% else %}Nouveau Client{% endif %}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="content-section">
+        <div class="section-header">
+            <h2>{% if client %}Modifier les informations de {{ client.first_name }} {{ client.last_name }}{% else %}Ajouter un nouveau client{% endif %}</h2>
+        </div>
+        
+        <form method="POST" action="">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="first_name">Prénom *</label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" required value="{{ client.first_name }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="last_name">Nom *</label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" required value="{{ client.last_name }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" value="{{ client.email }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Téléphone</label>
+                    <input type="text" id="phone" name="phone" class="form-control" value="{{ client.phone }}">
+                </div>
+                
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="address">Adresse</label>
+                    <input type="text" id="address" name="address" class="form-control" value="{{ client.address }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="postal_code">Code Postal</label>
+                    <input type="text" id="postal_code" name="postal_code" class="form-control" value="{{ client.postal_code }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="city">Ville</label>
+                    <input type="text" id="city" name="city" class="form-control" value="{{ client.city }}">
+                </div>
+                
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="country">Pays</label>
+                    <input type="text" id="country" name="country" class="form-control" value="{{ client.country|default:'France' }}">
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+                <a href="{% url 'clients_list' %}" class="btn" style="background:#64748b; color:white;">
+                    <i class="fas fa-arrow-left"></i> Annuler
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

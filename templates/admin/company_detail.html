@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}{{ company.name }} - Administration{% endblock %}
+{% block header_title %}Détails de l'entreprise{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto;">
+    <div class="content-section" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+            <h2>{{ company.name }}</h2>
+            <a href="{% url 'admin_companies' %}" class="btn" style="background:#64748b; color:white;">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <p><strong>Email :</strong> {{ company.email|default:"-" }}</p>
+            <p><strong>Téléphone :</strong> {{ company.phone|default:"-" }}</p>
+            <p><strong>Plan :</strong> {{ company.get_plan_display }}</p>
+            <p><strong>Statut :</strong> {{ company.get_subscription_status_display }}</p>
+            <p><strong>Ville :</strong> {{ company.city|default:"-" }}</p>
+            <p><strong>Pays :</strong> {{ company.country|default:"-" }}</p>
+            <p style="grid-column: 1 / -1;"><strong>Adresse :</strong> {{ company.address|default:"-" }}</p>
+            <p><strong>Site web :</strong> {{ company.website|default:"-" }}</p>
+            <p><strong>Créée le :</strong> {{ company.created_at|date:"d/m/Y H:i" }}</p>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <div class="section-header">
+            <h2>Utilisateurs ({{ company_users.count }})</h2>
+        </div>
+
+        {% if not company_users %}
+        <div class="empty-state">
+            <i class="fas fa-users fa-3x"></i>
+            <h3>Aucun utilisateur</h3>
+        </div>
+        {% else %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Inscrit le</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in company_users %}
+                    <tr>
+                        <td>{{ u.full_name }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.get_role_display }}</td>
+                        <td>{{ u.date_joined|date:"d/m/Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

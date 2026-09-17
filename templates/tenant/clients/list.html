@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Clients - BizManager{% endblock %}
+{% block header_title %}Gestion des Clients{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="section-header">
+        <h2>Liste des Clients ({{ clients.count }})</h2>
+        <a href="{% url 'client_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouveau Client
+        </a>
+    </div>
+
+    {% if not clients %}
+    <div class="empty-state">
+        <i class="fas fa-users fa-3x"></i>
+        <h3>Aucun client trouvé</h3>
+        <p>Ajoutez des clients pour commencer à créer des devis et des factures.</p>
+        <a href="{% url 'client_add' %}" class="btn btn-primary" style="margin-top: 1rem;">Nouveau Client</a>
+    </div>
+    {% else %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nom Complet</th>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Ville</th>
+                    <th>Pays</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td><strong>{{ client.first_name }} {{ client.last_name }}</strong></td>
+                    <td>{{ client.email|default:"-" }}</td>
+                    <td>{{ client.phone|default:"-" }}</td>
+                    <td>{{ client.city|default:"-" }}</td>
+                    <td>{{ client.country|default:"-" }}</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'client_edit' client.pk %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <!-- CORRIGE: POST au lieu de GET -->
+                            <form method="POST" action="{% url 'client_delete' client.pk %}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ client.first_name }} ?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'tenant/base.html' %}
+{% block title %}Factures{% endblock %}
+
+{% block content %}
+<div style="background:white; padding:20px; border-radius:16px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2 style="font-size:20px; font-weight:bold;">Liste des Factures ({{ invoices.count }})</h2>
+    <a href="{% url 'invoice_add' %}" style="background-color:#4361ee !important; color:white !important; padding:10px 20px; border-radius:50px; text-decoration:none; font-weight:bold; font-size:13px;">
+      + Nouvelle Facture
+    </a>
+  </div>
+
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <thead>
+      <tr style="background:#f8fafc; text-align:left; color:#888; font-size:11px;">
+        <th style="padding:10px;">N° Facture</th>
+        <th>Client</th>
+        <th>Date d'émission</th>
+        <th>Échéance</th>
+        <th>Montant Total</th>
+        <th>Statut</th>
+        <th style="text-align:center;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for invoice in invoices %}
+      <tr style="border-bottom:1px solid #eee;">
+        <td style="padding:10px; font-weight:bold;">{{ invoice.invoice_number }}</td>
+        <td>{{ invoice.client.first_name }} {{ invoice.client.last_name }}</td>
+        <td>{{ invoice.issue_date|date:"d/m/Y" }}</td>
+        <td>{{ invoice.due_date|date:"d/m/Y" }}</td>
+        <td>{{ invoice.total_amount|floatformat:0 }} FCFA</td>
+        <td><span style="background:#eef2ff; color:#4361ee; padding:4px 8px; border-radius:20px;">{{ invoice.get_status_display }}</span></td>
+        <td style="text-align:center;">
+          <a href="{% url 'invoice_detail' invoice.pk %}" style="background:#4361ee; color:white; padding:5px 12px; border-radius:20px; text-decoration:none;">Voir</a>
+          <form method="POST" action="{% url 'invoice_delete' invoice.pk %}" style="display:inline;" onsubmit="return confirm('Supprimer?');">
+            {% csrf_token %}
+            <button type="submit" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:50%; cursor:pointer;">🗑</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

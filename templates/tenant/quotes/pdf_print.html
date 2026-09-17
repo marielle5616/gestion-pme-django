@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Devis {{ quote.quote_number }}</title>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            padding: 40px;
+            color: #334155;
+            max-width: 900px;
+            margin: 0 auto
+        }
+
+        h2 {
+            color: #4361ee;
+            margin: 0
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: left;
+            color: #475569
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #4361ee;
+            padding-bottom: 20px;
+            margin-bottom: 25px
+        }
+
+        .total-box {
+            width: 320px;
+            margin-left: auto;
+            margin-top: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px
+        }
+
+        .total-box div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px
+        }
+
+        .final {
+            font-weight: 700;
+            color: #4361ee;
+            font-size: 18px;
+            border-top: 2px solid #4361ee;
+            padding-top: 10px;
+            margin-top: 10px
+        }
+
+        @media print {
+            .no-print {
+                display: none
+            }
+
+            body {
+                padding: 0
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="no-print"
+        style="background:#4361ee; color:white; padding:15px; text-align:center; margin:-40px -40px 20px -40px;">
+        <button onclick="window.print()"
+            style="padding:10px 25px; border-radius:20px; border:none; cursor:pointer; font-weight:600;">🖨️ Imprimer /
+            Enregistrer en PDF</button>
+    </div>
+    <div class="header">
+        <div style="display:flex; gap:15px; align-items:center;">
+            {% if company.logo %}<img src="{{ company.logo.url }}" style="height:60px;">{% endif %}
+            <div>
+                <h2>{{ company.name }}</h2>
+                <p>{{ company.address }}<br>{{ company.city }} - {{ company.email }}<br>{{ company.phone }}</p>
+            </div>
+        </div>
+            <div style="text-align:right"><strong>DEVIS {{ quote.quote_number }}</strong><br>Date: {{
+                quote.issue_date|date:"d/m/Y" }}<br>Exp: {{ quote.expiry_date|date:"d/m/Y" }}<br><br><span
+                    style="background:#f1f5f9; padding:5px 10px; border-radius:10px;">{{ quote.get_status_display
+                    }}</span>
+            </div>
+        </div>
+        <p><strong>Client:</strong><br>{{ quote.client.first_name }} {{ quote.client.last_name }}<br>{{
+            quote.client.email
+            }}<br>{{ quote.client.address }} - {{ quote.client.city }}</p>
+        <table>
+            <tr>
+                <th>Désignation</th>
+                <th style="text-align:right">Qté</th>
+                <th style="text-align:right">P.U HT</th>
+                <th style="text-align:right">TVA</th>
+                <th style="text-align:right">Total TTC</th>
+            </tr>
+            {% for item in quote.items.all %}
+            <tr>
+                <td>{{ item.description }}</td>
+                <td style="text-align:right">{{ item.quantity }}</td>
+                <td style="text-align:right">{{ item.unit_price|floatformat:2 }} €</td>
+                <td style="text-align:right">{{ item.tax_rate }}%</td>
+                <td style="text-align:right">{{ item.total_price|floatformat:2 }} €</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <div class="total-box">
+            <div><span>TVA:</span><span>{{ quote.tax_amount|floatformat:2 }} €</span></div>
+            <div class="final"><span>TOTAL TTC:</span><span>{{ quote.total_amount|floatformat:2 }} €</span></div>
+        </div>
+        {% if quote.notes %}<div style="margin-top:80px; background:#f8fafc; padding:15px; border-radius:8px;">
+            <strong>Notes:</strong><br>{{ quote.notes }}
+        </div>{% endif %}
+        <script>window.onload = function () { window.print(); }</script>
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Utilisateurs - Administration{% endblock %}
+{% block header_title %}Gestion des utilisateurs{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="section-header">
+        <h2>Liste des utilisateurs ({{ users.count }})</h2>
+    </div>
+
+    {% if not users %}
+    <div class="empty-state">
+        <i class="fas fa-users fa-3x"></i>
+        <h3>Aucun utilisateur</h3>
+    </div>
+    {% else %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Entreprise</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Inscrit le</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td><strong>{{ u.full_name }}</strong></td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.company.name|default:"-" }}</td>
+                    <td>{{ u.get_role_display }}</td>
+                    <td>
+                        <span class="badge badge-{% if u.is_active %}success{% else %}danger{% endif %}">
+                            {% if u.is_active %}Actif{% else %}Inactif{% endif %}
+                        </span>
+                    </td>
+                    <td>{{ u.date_joined|date:"d/m/Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

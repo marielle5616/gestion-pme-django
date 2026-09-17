@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            margin: 20mm;
+            size: A4;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #1a1a1a;
+            line-height: 1.5;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 3px solid #4361ee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .company h2 {
+            color: #4361ee;
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .invoice-title {
+            text-align: right;
+        }
+
+        .invoice-title h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #111;
+        }
+
+        .infos {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 0;
+        }
+
+        .box {
+            background: #f8fafc;
+            padding: 12px 15px;
+            border-radius: 8px;
+            width: 48%;
+        }
+
+        .box h4 {
+            margin: 0 0 8px 0;
+            color: #4361ee;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #4361ee;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        th:last-child,
+        td:last-child {
+            text-align: right;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .totals {
+            width: 300px;
+            float: right;
+            margin-top: 20px;
+        }
+
+        .totals table {
+            margin-top: 0;
+        }
+
+        .totals td {
+            border: none;
+            padding: 5px 10px;
+        }
+
+        .totals .grand {
+            background: #4361ee;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 6px;
+        }
+
+        .footer {
+            clear: both;
+            margin-top: 60px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            text-align: center;
+            color: #999;
+            font-size: 10px;
+        }
+
+        .btn-print {
+            background: #4361ee;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 99px;
+            cursor: pointer;
+            margin: 15px;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="no-print" style="text-align:center;">
+        <button class="btn-print" onclick="window.print()">Imprimer / Enregistrer en PDF</button>
+    </div>
+
+    <div class="header">
+        <div class="company">
+            <h2>{{ company.name }}</h2>
+            <div style="font-size:11px; color:#666; margin-top:5px;">
+                {{ company.address|default:"" }}<br>
+                {{ company.city|default:"Douala" }} - {{ company.country|default:"Cameroun" }}<br>
+                Tel: {{ company.phone|default:"" }}<br>
+                Email: {{ company.email|default:request.user.email }}
+            </div>
+        </div>
+        <div class="invoice-title">
+            <h1>FACTURE</h1>
+            <p style="margin:5px 0;"><b>{{ invoice.invoice_number }}</b></p>
+            <p style="margin:0; font-size:11px;">Date: {{ invoice.issue_date|date:"d/m/Y" }}<br>Échéance: {{
+                invoice.due_date|date:"d/m/Y" }}<br>Statut: {{ invoice.get_status_display }}</p>
+        </div>
+    </div>
+
+    <div class="infos">
+        <div class="box">
+            <h4>Facturé à</h4>
+            <b>{{ invoice.client.first_name }} {{ invoice.client.last_name }}</b><br>
+            {{ invoice.client.email }}<br>
+            {{ invoice.client.phone }}<br>
+            {{ invoice.client.address }} {{ invoice.client.city }}
+        </div>
+        <div class="box">
+            <h4>Détails paiement</h4>
+            Méthode: Virement / Mobile Money<br>
+            TVA: 19.25%<br>
+            Devise: FCFA (XAF)
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width:45%;">Désignation</th>
+                <th style="width:10%; text-align:center;">Qté</th>
+                <th style="width:15%;">P.U HT</th>
+                <th style="width:10%; text-align:center;">TVA</th>
+                <th style="width:20%;">Total TTC</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.items.all %}
+            <tr>
+                <td>{{ item.description }}</td>
+                <td style="text-align:center;">{{ item.quantity|floatformat:0 }}</td>
+                <td>{{ item.unit_price|floatformat:0 }} FCFA</td>
+                <td style="text-align:center;">{{ item.tax_rate|floatformat:2 }}%</td>
+                <td style="text-align:right; font-weight:bold;">{{ item.total_price|floatformat:0 }} FCFA</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <table>
+            <tr>
+                <td>Total HT:</td>
+                <td style="text-align:right;">{{ invoice.total_amount|floatformat:0 }} FCFA</td>
+            </tr>
+            <tr>
+                <td>Dont TVA:</td>
+                <td style="text-align:right;">{{ invoice.tax_amount|floatformat:0 }} FCFA</td>
+            </tr>
+            <tr class="grand">
+                <td>TOTAL TTC:</td>
+                <td style="text-align:right;">{{ invoice.total_amount|floatformat:0 }} FCFA</td>
+            </tr>
+        </table>
+        {% if invoice.notes %}
+        <div style="margin-top:15px; font-size:11px; background:#f8fafc; padding:10px; border-radius:6px;">
+            <b>Notes:</b> {{ invoice.notes }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        Merci pour votre confiance ! | {{ company.name }} - Facture générée par BizManager<br>
+        Document généré le {{ now|date:"d/m/Y H:i" }}
+    </div>
+
+</body>
+
+</html>

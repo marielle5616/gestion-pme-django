@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Facture {{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="bg-white p-8 rounded-[20px] shadow-sm border">
+
+    <div class="flex justify-between mb-6">
+      <div>
+        <h2 class="text-xl font-bold">{{ invoice.invoice_number }}</h2>
+        <p class="text-sm text-gray-600 mt-2">{{ invoice.client.first_name }} {{ invoice.client.last_name }}<br>{{ invoice.client.email }}</p>
+      </div>
+      <div class="text-sm text-right">
+        <p>Date: {{ invoice.issue_date|date:"d/m/Y" }}</p>
+        <p>Échéance: {{ invoice.due_date|date:"d/m/Y" }}</p>
+        <p>Statut: <b>{{ invoice.get_status_display }}</b></p>
+      </div>
+    </div>
+
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-400 text-[11px] uppercase">
+        <tr>
+          <th class="p-3 text-left">Description</th>
+          <th class="p-3 text-center">Qté</th>
+          <th class="p-3 text-right">P.U (FCFA)</th>
+          <th class="p-3 text-right">Total (FCFA)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in invoice.items.all %}
+        <tr class="border-b">
+          <td class="p-3">{{ item.description }}</td>
+          <td class="p-3 text-center">{{ item.quantity|floatformat:0 }}</td>
+          <td class="p-3 text-right">{{ item.unit_price|floatformat:0 }} FCFA</td>
+          <td class="p-3 text-right font-semibold">{{ item.total_price|floatformat:0 }} FCFA</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="text-right mt-6">
+      <p class="text-xs text-gray-400">Montant total TTC</p>
+      <h2 class="text-xl font-bold text-[#4361ee]">Total: {{ invoice.total_amount|floatformat:0 }} FCFA</h2>
+      <p class="text-xs text-gray-400">Dont TVA (19.25%): {{ invoice.tax_amount|floatformat:0 }} FCFA</p>
+    </div>
+
+    <!-- LES 2 BOUTONS BLEUS -->
+    <div class="flex gap-3 mt-8">
+      <a href="{% url 'invoice_pdf' invoice.pk %}" style="background:#4361ee; color:white; padding:10px 22px; border-radius:999px; text-decoration:none; font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:8px;">
+        <i class="fa-solid fa-file-pdf"></i> Voir PDF
+      </a>
+      <a href="{% url 'invoices_list' %}" style="background:#4361ee; color:white; padding:10px 22px; border-radius:999px; text-decoration:none; font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:8px;">
+        <i class="fa-solid fa-arrow-left"></i> Retour
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

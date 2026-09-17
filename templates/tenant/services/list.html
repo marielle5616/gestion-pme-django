@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Services - BizManager{% endblock %}
+{% block header_title %}Catalogue des Services{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="section-header">
+        <h2>Liste des Services ({{ services.count }})</h2>
+        <a href="{% url 'service_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouveau Service
+        </a>
+    </div>
+
+    {% if not services %}
+    <div class="empty-state">
+        <i class="fas fa-concierge-bell fa-3x"></i>
+        <h3>Aucun service trouvé</h3>
+        <p>Ajoutez des services à votre catalogue pour pouvoir les facturer.</p>
+        <a href="{% url 'service_add' %}" class="btn btn-primary" style="margin-top: 1rem;">Nouveau Service</a>
+    </div>
+    {% else %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nom du service</th>
+                    <th>Description</th>
+                    <th>Prix unitaire</th>
+                    <th>Taux TVA</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td><strong>{{ service.name }}</strong></td>
+                    <td>{{ service.description|default:"-"|truncatewords:10 }}</td>
+                    <td>{{ service.price|default:0|floatformat:2 }} FCFA</td>
+                    <td>{{ service.tax_rate|default:0|floatformat:1 }} %</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'service_edit' service.pk %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <!-- CORRIGE ICI : POST + csrf_token -->
+                            <form method="POST" action="{% url 'service_delete' service.pk %}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ service.name }} ?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

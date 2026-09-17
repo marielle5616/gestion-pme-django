@@ -1,0 +1,86 @@
+{% extends 'tenant/base.html' %}
+{% block title %}Dashboard - {{ request.user.company.name }}{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px">
+    <div style="background:white; padding:20px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,.05)">
+        <div style="display:flex; gap:14px; align-items:center">
+            <div
+                style="width:48px; height:48px; background:#eef3ff; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#4361ee">
+                👥</div>
+            <div>
+                <h3 style="margin:0">{{ total_clients|default:"0" }}</h3>
+                <p style="margin:0; color:#6b7280">Clients</p>
+            </div>
+        </div>
+    </div>
+    <div style="background:white; padding:20px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,.05)">
+        <div style="display:flex; gap:14px; align-items:center">
+            <div
+                style="width:48px; height:48px; background:#e0e7ff; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#4338ca">
+                💰</div>
+            <div>
+                <h3 style="margin:0">{{ total_revenue|default:"0"|floatformat:2 }} €</h3>
+                <p style="margin:0; color:#6b7280">Chiffre payé</p>
+            </div>
+        </div>
+    </div>
+    <div style="background:white; padding:20px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,.05)">
+        <div style="display:flex; gap:14px; align-items:center">
+            <div
+                style="width:48px; height:48px; background:#fff3cd; border-radius:12px; display:flex; align-items:center; justify-content:center">
+                ⏳</div>
+            <div>
+                <h3 style="margin:0">{{ pending_invoices|default:"0" }}</h3>
+                <p style="margin:0; color:#6b7280">Factures en attente</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="background:white; border-radius:16px; padding:20px">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+        <h2 style="margin:0">Factures récentes</h2>
+        <a href="{% url 'invoices_list' %}"
+            style="background:#4361ee; color:white; padding:8px 16px; border-radius:999px; text-decoration:none">Voir
+            toutes</a>
+    </div>
+
+    {% if not recent_invoices %}
+    <p style="text-align:center; color:#9ca3af; padding:20px">Aucune facture</p>
+    {% else %}
+    <div style="overflow-x:auto">
+        <table style="width:100%; border-collapse:collapse">
+            <thead style="background:#f9fafb">
+                <tr>
+                    <th style="padding:12px; text-align:left">N° Facture</th>
+                    <th style="text-align:left">Client</th>
+                    <th style="text-align:left">Date</th>
+                    <th style="text-align:left">Montant</th>
+                    <th style="text-align:left">Statut</th>
+                    <th style="text-align:left">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in recent_invoices %}
+                <tr style="border-top:1px solid #f3f4f6">
+                    <td style="padding:12px">{{ invoice.invoice_number }}</td>
+                    <td>{{ invoice.client.first_name }} {{ invoice.client.last_name }}</td>
+                    <td>{{ invoice.issue_date|date:"d/m/Y" }}</td>
+                    <td>{{ invoice.total_amount|default:0|floatformat:2 }} €</td>
+                    <td><span
+                            style="background:#eef3ff; color:#4361ee; padding:4px 10px; border-radius:999px; font-size:11px">{{
+                            invoice.get_status_display|upper }}</span></td>
+                    <td>
+                        <a href="{% url 'invoice_detail' invoice.pk %}" style="color:#4361ee; text-decoration:none">👁️
+                            Voir</a> |
+                        <a href="{% url 'invoice_pdf' invoice.pk %}" style="color:#10b981; text-decoration:none">PDF</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

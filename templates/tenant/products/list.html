@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Produits - BizManager{% endblock %}
+{% block header_title %}Catalogue des Produits{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="section-header">
+        <h2>Liste des Produits ({{ products.count }})</h2>
+        <a href="{% url 'product_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouveau Produit
+        </a>
+    </div>
+
+    {% if not products %}
+    <div class="empty-state">
+        <i class="fas fa-box fa-3x"></i>
+        <h3>Aucun produit trouvé</h3>
+        <p>Ajoutez des produits à votre catalogue pour pouvoir les facturer.</p>
+        <a href="{% url 'product_add' %}" class="btn btn-primary" style="margin-top: 1rem;">Nouveau Produit</a>
+    </div>
+    {% else %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nom du produit</th>
+                    <th>Description</th>
+                    <th>Prix unitaire</th>
+                    <th>Taux TVA</th>
+                    <th>Unité</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td><strong>{{ product.name }}</strong></td>
+                    <td>{{ product.description|default:"-"|truncatewords:10 }}</td>
+                    <td>{{ product.price|floatformat:2 }} FCFA</td>
+                    <td>{{ product.tax_rate|floatformat:1 }} %</td>
+                    <td>{{ product.unit }}</td>
+                    <td>
+                        <span class="badge {% if product.stock_quantity > 5 %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ product.stock_quantity }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'product_edit' product.pk %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <!-- BOUTON SUPPRIMER CORRIGE -->
+                            <form method="POST" action="{% url 'product_delete' product.pk %}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ product.name }} ?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

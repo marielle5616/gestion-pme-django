@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Entreprises - Administration{% endblock %}
+{% block header_title %}Gestion des entreprises{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-info"><h3>{{ plans_count.total }}</h3><p>Total</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info"><h3>{{ plans_count.active }}</h3><p>Actives</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info"><h3>{{ plans_count.starter }}</h3><p>Starter</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info"><h3>{{ plans_count.business }}</h3><p>Business</p></div>
+    </div>
+</div>
+
+<div class="content-section">
+    <div class="section-header">
+        <h2>Liste des entreprises ({{ companies.count }})</h2>
+    </div>
+
+    {% if not companies %}
+    <div class="empty-state">
+        <i class="fas fa-building fa-3x"></i>
+        <h3>Aucune entreprise</h3>
+    </div>
+    {% else %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Entreprise</th>
+                    <th>Email</th>
+                    <th>Plan</th>
+                    <th>Statut</th>
+                    <th>Utilisateurs</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for company in companies %}
+                <tr>
+                    <td><strong>{{ company.name }}</strong></td>
+                    <td>{{ company.email|default:"-" }}</td>
+                    <td>
+                        <form method="POST" style="display:inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update_plan">
+                            <input type="hidden" name="id" value="{{ company.id }}">
+                            <select name="plan" onchange="this.form.submit()" class="form-control" style="width:auto;">
+                                <option value="starter" {% if company.plan == 'starter' %}selected{% endif %}>Starter</option>
+                                <option value="business" {% if company.plan == 'business' %}selected{% endif %}>Business</option>
+                                <option value="enterprise" {% if company.plan == 'enterprise' %}selected{% endif %}>Enterprise</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" style="display:inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update_status">
+                            <input type="hidden" name="id" value="{{ company.id }}">
+                            <select name="status" onchange="this.form.submit()" class="form-control" style="width:auto;">
+                                <option value="active" {% if company.subscription_status == 'active' %}selected{% endif %}>Actif</option>
+                                <option value="inactive" {% if company.subscription_status == 'inactive' %}selected{% endif %}>Inactif</option>
+                                <option value="suspended" {% if company.subscription_status == 'suspended' %}selected{% endif %}>Suspendu</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>{{ company.user_count }}</td>
+                    <td>
+                        <a href="{% url 'admin_company_detail' company.pk %}" class="btn btn-info btn-sm">
+                            <i class="fas fa-eye"></i> Détails
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

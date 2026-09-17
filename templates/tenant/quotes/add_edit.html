@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% block title %}Nouveau Devis - BizManager{% endblock %}
+{% block header_title %}Nouveau Devis{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    .items-container {
+        margin-top: 2.5rem;
+    }
+    .items-header {
+        font-weight: 600;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+        gap: 1rem;
+    }
+    .item-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        align-items: end;
+    }
+    .item-total {
+        font-weight: 600;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        display: block;
+        text-align: right;
+    }
+    .summary-box {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-top: 2rem;
+        border: 1px solid #e9ecef;
+        max-width: 400px;
+        margin-left: auto;
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .summary-row:last-child {
+        border-bottom: none;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #4361ee;
+    }
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2.5rem;
+        border-top: 1px solid #e9ecef;
+        padding-top: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <form method="POST" action="" id="quoteForm">
+        {% csrf_token %}
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="client_id">Client *</label>
+                <select id="client_id" name="client_id" class="form-control" required>
+                    <option value="">Sélectionner un client</option>
+                    {% for client in clients %}
+                        <option value="{{ client.id }}">{{ client.first_name }} {{ client.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="status">Statut *</label>
+                <select id="status" name="status" class="form-control" required>
+                    <option value="draft">Brouillon</option>
+                    <option value="sent">Envoyé</option>
+                    <option value="accepted">Accepté</option>
+                    <option value="rejected">Refusé</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="issue_date">Date d'émission *</label>
+                <input type="date" id="issue_date" name="issue_date" class="form-control" value="{{ today }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="expiry_date">Date d'expiration *</label>
+                <input type="date" id="expiry_date" name="expiry_date" class="form-control" value="{{ expiry }}" required>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="notes">Notes / Conditions de règlement</label>
+                <textarea id="notes" name="notes" class="form-control" placeholder="Ex: Validité du devis : 1 mois..."></textarea>
+            </div>
+        </div>
+        
+        <!-- Articles du devis -->
+        <div class="items-container">
+            <h3>Articles du devis</h3>
+            
+            <div class="items-header">
+                <span>Description *</span>
+                <span>Quantité *</span>
+                <span>Prix unitaire (HT) *</span>
+                <span>TVA %</span>
+                <span>Total (TTC)</span>
+                <span>Action</span>
+            </div>
+            
+            <div id="itemsList">
+                <!-- Dynamic rows -->
+            </div>
+            
+            <button type="button" id="addItem" class="btn btn-success btn-sm" style="margin-top: 1rem; background-color:#2ec4b6;">
+                <i class="fas fa-plus"></i> Ajouter un article
+            </button>
+        </div>
+        
+        <!-- Récapitulatif -->
+        <div class="summary-box">
+            <h3>Récapitulatif</h3>
+            <div class="summary-row">
+                <span>Sous-total HT:</span>
+                <span id="subtotal">0,00 €</span>
+            </div>
+            <div class="summary-row">
+                <span>Total TVA:</span>
+                <span id="taxAmount">0,00 €</span>
+            </div>
+            <div class="summary-row">
+                <span>Montant Total TTC:</span>
+                <span id="totalAmount">0,00 €</span>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'quotes_list' %}" class="btn" style="background:#64748b; color:white;">
+                <i class="fas fa-arrow-left"></i> Annuler
+            </a>
+            <button type="submit" class="btn btn-primary" id="submitButton">
+                <i class="fas fa-save"></i> Créer le devis
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let itemCount = 0;
+        const itemsList = document.getElementById('itemsList');
+        const addItemButton = document.getElementById('addItem');
+        
+        function addItem() {
+            const itemId = itemCount++;
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            itemRow.innerHTML = `
+                <div>
+                    <input type="text" name="items[${itemId}][description]" class="form-control" placeholder="Description de l'article" required>
+                </div>
+                <div>
+                    <input type="number" name="items[${itemId}][quantity]" class="form-control quantity" value="1" min="0.01" step="any" required>
+                </div>
+                <div>
+                    <input type="number" name="items[${itemId}][unit_price]" class="form-control unit-price" value="0" min="0" step="0.01" required>
+                </div>
+                <div>
+                    <input type="number" name="items[${itemId}][tax_rate]" class="form-control tax-rate" value="20" min="0" max="100" step="0.1" required>
+                </div>
+                <div>
+                    <span class="item-total">0,00 €</span>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-danger btn-sm remove-item" style="background-color:#e71d36; padding: 0.6rem 0.8rem;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            itemsList.appendChild(itemRow);
+            
+            // Re-calculate on input changes
+            const inputs = itemRow.querySelectorAll('.quantity, .unit-price, .tax-rate');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+            
+            // Delete row handler
+            itemRow.querySelector('.remove-item').addEventListener('click', function() {
+                itemRow.remove();
+                calculateTotals();
+            });
+            
+            calculateTotals();
+        }
+        
+        function calculateTotals() {
+            let subtotal = 0;
+            let taxAmount = 0;
+            
+            document.querySelectorAll('.item-row').forEach(row => {
+                const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+                const unitPrice = parseFloat(row.querySelector('.unit-price').value) || 0;
+                const taxRate = parseFloat(row.querySelector('.tax-rate').value) || 0;
+                
+                const itemSubtotal = quantity * unitPrice;
+                const itemTax = itemSubtotal * (taxRate / 100);
+                const itemTotal = itemSubtotal + itemTax;
+                
+                row.querySelector('.item-total').textContent = itemTotal.toFixed(2).replace('.', ',') + ' €';
+                
+                subtotal += itemSubtotal;
+                taxAmount += itemTax;
+            });
+            
+            const totalAmount = subtotal + taxAmount;
+            
+            document.getElementById('subtotal').textContent = subtotal.toFixed(2).replace('.', ',') + ' €';
+            document.getElementById('taxAmount').textContent = taxAmount.toFixed(2).replace('.', ',') + ' €';
+            document.getElementById('totalAmount').textContent = totalAmount.toFixed(2).replace('.', ',') + ' €';
+        }
+        
+        // Add default item
+        addItem();
+        
+        addItemButton.addEventListener('click', addItem);
+        
+        // Double submittion check
+        document.getElementById('quoteForm').addEventListener('submit', function(e) {
+            const client = document.getElementById('client_id').value;
+            const rows = document.querySelectorAll('.item-row');
+            
+            if (!client) {
+                e.preventDefault();
+                alert('Veuillez sélectionner un client.');
+                return false;
+            }
+            if (rows.length === 0) {
+                e.preventDefault();
+                alert('Veuillez ajouter au moins un article.');
+                return false;
+            }
+            
+            document.getElementById('submitButton').disabled = true;
+            document.getElementById('submitButton').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+        });
+    });
+</script>
+{% endblock %}

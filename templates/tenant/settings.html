@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Paramètres - BizManager{% endblock %}
+{% block header_title %}Paramètres de l'entreprise{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="content-section">
+        <div class="section-header">
+            <h2>Informations de l'entreprise</h2>
+        </div>
+
+        <form method="POST"  enctype="multipart/form-data">
+            <label>logo de l'entreprise</label>
+            <input type="file" name="logo" accept="image/*" class="form-control mb-3">
+            {% if company.logo %}
+                <div style="margin-bottom: 1rem;">
+                    <img src="{{ company.logo.url }}" alt="Logo de l'entreprise" style="max-width: 150px; max-height: 150px;">
+                </div>
+            {% endif %}
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="name">Nom de l'entreprise *</label>
+                    <input type="text" id="name" name="name" class="form-control" required value="{{ company.name }}">
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="address">Adresse</label>
+                    <input type="text" id="address" name="address" class="form-control" value="{{ company.address|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="postal_code">Code postal</label>
+                    <input type="text" id="postal_code" name="postal_code" class="form-control" value="{{ company.postal_code|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="city">Ville</label>
+                    <input type="text" id="city" name="city" class="form-control" value="{{ company.city|default:'' }}">
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="country">Pays</label>
+                    <input type="text" id="country" name="country" class="form-control" value="{{ company.country|default:'France' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Téléphone</label>
+                    <input type="text" id="phone" name="phone" class="form-control" value="{{ company.phone|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" value="{{ company.email|default:'' }}">
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="website">Site web</label>
+                    <input type="url" id="website" name="website" class="form-control" value="{{ company.website|default:'' }}" placeholder="https://">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+                <a href="{% url 'dashboard' %}" class="btn" style="background:#64748b; color:white;">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

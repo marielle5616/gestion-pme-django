@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Devis {{ quote.quote_number }}{% endblock %}
+{% block header_title %}Devis {{ quote.quote_number }}{% endblock %}
+{% block content %}
+<div style="background:white; padding:30px; border-radius:16px; max-width:900px; margin:0 auto">
+    <div style="display:flex; justify-content:space-between; margin-bottom:20px">
+        <div>
+            <h3>{{ quote.quote_number }}</h3>
+            <p>{{ quote.client.first_name }} {{ quote.client.last_name }}<br>{{ quote.client.email }}</p>
+        </div>
+        <div style="text-align:right">
+            <p>Date: {{ quote.issue_date|date:"d/m/Y" }}<br>Validité: {{ quote.valid_until|date:"d/m/Y" }}<br>Statut:
+                <b>{{ quote.get_status_display }}</b>
+            </p>
+        </div>
+    </div>
+
+    <table style="width:100%; border-collapse:collapse; margin-top:20px">
+        <thead style="background:#f8fafc">
+            <tr>
+                <th style="padding:12px; text-align:left">Description</th>
+                <th>Qté</th>
+                <th style="text-align:right">P.U (FCFA)</th>
+                <th style="text-align:right">Total (FCFA)</th>
+            </tr>
+        </thead>
+        <tbody>{% for item in quote.items.all %}<tr>
+                <td style="padding:12px; border-bottom:1px solid #eee">{{ item.description }}</td>
+                <td style="border-bottom:1px solid #eee">{{ item.quantity }}</td>
+                <td style="text-align:right; border-bottom:1px solid #eee">{{ item.unit_price|floatformat:0 }} FCFA</td>
+                <td style="text-align:right; border-bottom:1px solid #eee">{{ item.total_price|floatformat:0 }} FCFA
+                </td>
+            </tr>{% endfor %}</tbody>
+    </table>
+
+    <h2 style="text-align:right; margin-top:20px; color:#4361ee">Total: {{ quote.total_amount|floatformat:0 }} FCFA</h2>
+
+    <!-- BOUTONS CORRIGES -->
+    <div style="margin-top:30px; display:flex; gap:12px; flex-wrap:wrap">
+        <a href="{% url 'quote_pdf' quote.pk %}" style="background:#4361ee; color:white; padding:10px 22px; border-radius:999px; text-decoration:none; font-weight:bold;">
+            <i class="fas fa-file-pdf"></i> Voir PDF
+        </a>
+        
+        <!-- ICI C'EST CORRIGE: quote_to_invoice et pas quote_convert -->
+        <form method="POST" action="{% url 'quote_to_invoice' quote.pk %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" style="background:#22c55e; color:white; border:none; padding:10px 20px; border-radius:999px; cursor:pointer; font-weight:bold;">
+                <i class="fas fa-file-invoice"></i> Facturer
+            </button>
+        </form>
+        
+        <a href="{% url 'quotes_list' %}" style="background:#4361ee; color:white; padding:10px 22px; border-radius:999px; text-decoration:none; font-weight:bold;">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+</div>
+{% endblock %}

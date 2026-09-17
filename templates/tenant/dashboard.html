@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Tableau de bord - BizManager{% endblock %}
+{% block header_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ total_clients }}</h3>
+            <p>Clients</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-file-invoice"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ recent_invoices.count }}</h3>
+            <p>Factures ce mois</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-franc cfa-sign"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ total_revenue|floatformat:2 }} FCFA</h3>
+            <p>Chiffre d'affaires</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ pending_invoices }}</h3>
+            <p>Factures en attente</p>
+        </div>
+    </div>
+</div>
+
+<!-- Factures récentes -->
+<div class="content-section">
+    <div class="section-header">
+        <h2>Factures récentes</h2>
+        <a href="{% url 'invoices_list' %}" class="btn btn-primary">Voir toutes</a>
+    </div>
+    
+    {% if not recent_invoices %}
+    <div class="empty-state">
+        <i class="fas fa-file-invoice-dollar fa-3x"></i>
+        <h3>Aucune facture trouvée</h3>
+        <p>Commencez par créer votre première facture</p>
+        <a href="{% url 'invoice_add' %}" class="btn btn-primary" style="margin-top: 1rem;">Créer une facture</a>
+    </div>
+    {% else %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>N° Facture</th>
+                    <th>Client</th>
+                    <th>Date</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in recent_invoices %}
+                <tr>
+                    <td>{{ invoice.invoice_number }}</td>
+                    <td>{{ invoice.client.first_name }} {{ invoice.client.last_name }}</td>
+                    <td>{{ invoice.issue_date|date:"d/m/Y" }}</td>
+                    <td>{{ invoice.total_amount|floatformat:2 }} €</td>
+                    <td>
+                        <span class="badge badge-{% if invoice.status == 'paid' %}success{% elif invoice.status == 'sent' %}warning{% elif invoice.status == 'overdue' %}danger{% else %}info{% endif %}">
+                            {{ invoice.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'invoice_detail' invoice.pk %}" class="btn btn-info btn-sm">
+                            <i class="fas fa-eye"></i> Voir
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

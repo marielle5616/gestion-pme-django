@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Devis - BizManager{% endblock %}
+{% block header_title %}Gestion des Devis{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="section-header">
+        <h2>Liste des Devis ({{ quotes.count }})</h2>
+        <a href="{% url 'quote_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouveau Devis
+        </a>
+    </div>
+
+    {% if not quotes %}
+    <div class="empty-state">
+        <i class="fas fa-file-alt fa-3x"></i>
+        <h3>Aucun devis trouvé</h3>
+        <p>Créez votre premier devis commercial pour vos clients.</p>
+        <a href="{% url 'quote_add' %}" class="btn btn-primary" style="margin-top: 1rem;">Nouveau Devis</a>
+    </div>
+    {% else %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>N° Devis</th>
+                    <th>Client</th>
+                    <th>Date d'émission</th>
+                    <th>Date d'expiration</th>
+                    <th>Montant Total</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quote in quotes %}
+                <tr>
+                    <td><strong>{{ quote.quote_number }}</strong></td>
+                    <td>{{ quote.client.first_name }} {{ quote.client.last_name }}</td>
+                    <td>{{ quote.issue_date|date:"d/m/Y" }}</td>
+                    <td>{{ quote.expiry_date|date:"d/m/Y" }}</td>
+                    <td>{{ quote.total_amount|floatformat:2 }} FCFA</td>
+                    <td>
+                        <span class="badge badge-{% if quote.status == 'accepted' %}success{% elif quote.status == 'sent' %}warning{% elif quote.status == 'rejected' %}danger{% elif quote.status == 'invoiced' %}info{% else %}secondary{% endif %}">
+                            {{ quote.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'quote_detail' quote.pk %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> Voir
+                            </a>
+                            <a href="{% url 'quote_delete' quote.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce devis ?');">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
