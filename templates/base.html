@@ -3,7 +3,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1200, initial-scale=0.5">
     <title>{% block title %}Manager{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,6 +22,9 @@
 </head>
 <body>
     <div class="dashboard-container">
+        <button id="menu-toggle" class="btn d-md-none" style="position:fixed; top:10px; left:10px; z-index:1000; background:#4361ee; color:white;">
+            <i class="fas fa-bars"></i>
+        </button>
         <aside class="sidebar" id="app-sidebar">
             <div class="sidebar-header">
                 <h2>BizManager</h2>
@@ -34,13 +37,6 @@
                 </div>
             </div>
             <ul class="sidebar-menu">
-                {% if user.is_superuser %}
-                <li><a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a></li>
-                <li class="menu-section">Gestion SaaS</li>
-                <li><a href="{% url 'admin_companies' %}"><i class="fas fa-building"></i> Entreprises</a></li>
-                <li><a href="{% url 'admin_users' %}"><i class="fas fa-users"></i> Utilisateurs</a></li>
-                <li><a href="{% url 'admin_settings' %}"><i class="fas fa-cog"></i> Paramètres</a></li>
-                {% else %}
                 <li><a href="{% url 'tenant_dashboard' %}" class="{% if 'tenant_dashboard' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a></li>
                 <li class="menu-section">Gestion Commerciale</li>
                 <li><a href="{% url 'clients_list' %}" class="{% if 'client' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-users"></i> Clients</a></li>
@@ -50,10 +46,8 @@
                 <li><a href="{% url 'products_list' %}" class="{% if 'product' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-box"></i> Produits</a></li>
                 <li><a href="{% url 'services_list' %}" class="{% if 'service' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-concierge-bell"></i> Services</a></li>
                 <li class="menu-section">Administration</li>
-                <li><a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Paramètres</a></li>
-                {% endif %}
-                <li>
-                    <!-- ✅ SÉCURISÉ: logout en POST -->
+                <li><a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Paramètres</a></li>        
+                    <!-- SÉCURISÉ: logout en POST -->
                     <form method="POST" action="{% url 'logout' %}" style="display:inline">
                         {% csrf_token %}
                         <button type="submit" class="logout-link" style="background:none; border:none; color:inherit; cursor:pointer; width:100%; text-align:left; padding:0">
@@ -80,7 +74,7 @@
                 </div>
             </header>
             <div class="content-wrapper">
-                <!-- ✅ Ajout affichage messages sécurité -->
+                <!--  Ajout affichage messages sécurité -->
                 {% if messages %}
                     {% for message in messages %}
                         <div class="alert alert-{{ message.tags }}">{{ message }}</div>
@@ -91,5 +85,27 @@
         </main>
     </div>
     {% block extra_js %}{% endblock %}
+    <script>
+        document.getElementById('menu-toggle').onclick = function(){
+            document.getElementById('app-sidebar').classList.toggle('show-mobile');
+        }
+    </script>
+    <style>
+        @media (max-width: 768px){
+            #app-sider {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 999;
+                height: 100vh;
+                transition: 0.3s;
+            }
+            #app-sidebar.show-mobile{
+                transform: translateX(0);
+            }
+            .dashboard-container{
+                margin-left: 0;
+            }
+        }
+    </style>
 </body>
 </html>
