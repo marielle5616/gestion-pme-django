@@ -92,3 +92,9 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#pour render
+CRSF_TRUSTED_ORIGINS = ['https://gestion-pme-django.onrender.com','https://*.onrender.com',
+]
+#verification
+ALLOWED_HOSTS = ['gestion-pme-django.onrender.com','.onrender.com','localhost','127.0.0.1']
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
