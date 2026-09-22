@@ -6,7 +6,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", 'django-insecure-change-me')
 DEBUG = False
 ALLOWED_HOSTS = ['.vercel.app', '.now.sh', 'gestion-pme-django.onrender.com', '.onrender.com', 'localhost', '127.0.0.1']
-CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app', 'https://gestion-pme-django.onrender.com', 'https://*.onrender.com']
+
+# FIX 403 CSRF sur Vercel
+CSRF_TRUSTED_ORIGINS = [
+    'https://gestion-pme-django.vercel.app',
+    'https://*.vercel.app',
+    'https://gestion-pme-django.onrender.com',
+    'https://*.onrender.com',
+]
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
