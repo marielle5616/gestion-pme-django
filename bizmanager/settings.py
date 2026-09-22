@@ -1,7 +1,6 @@
 import os
 import sys
 from pathlib import Path
-import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", 'django-insecure-change-me')
@@ -50,22 +49,11 @@ TEMPLATES = [{
 
 WSGI_APPLICATION = 'bizmanager.wsgi.application'
 
-# --- DATABASES : Postgres sur Vercel, SQLite en local ---
-if os.environ.get('DATABASE_URL'):
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
+# FIX VERCEL: base de données en écriture dans /tmp
+if os.environ.get('VERCEL') or 'vercel' in sys.modules:
+    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3','NAME': '/tmp/db.sqlite3',}}
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3','NAME': BASE_DIR / 'db.sqlite3',}}
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
