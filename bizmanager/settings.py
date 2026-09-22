@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,7 +48,12 @@ TEMPLATES = [{
 }]
 
 WSGI_APPLICATION = 'bizmanager.wsgi.application'
-DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3','NAME': BASE_DIR / 'db.sqlite3',}}
+
+# FIX VERCEL: base de données en écriture dans /tmp
+if os.environ.get('VERCEL') or 'vercel' in sys.modules:
+    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3','NAME': '/tmp/db.sqlite3',}}
+else:
+    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3','NAME': BASE_DIR / 'db.sqlite3',}}
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
