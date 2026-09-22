@@ -96,5 +96,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CRSF_TRUSTED_ORIGINS = ['https://gestion-pme-django.onrender.com','https://*.onrender.com',
 ]
 #verification
-ALLOWED_HOSTS = ['gestion-pme-django.onrender.com','.onrender.com','localhost','127.0.0.1']
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', 'gestion-pme-django.onrender.com', '.onrender.com', 'localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app', 'https://gestion-pme-django.onrender.com']
