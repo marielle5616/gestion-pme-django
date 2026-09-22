@@ -2,9 +2,9 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'change-me-en-prod-123-super-secret')
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+SECRET_KEY = os.environ.get("SECRET_KEY", 'django-insecure-change-me')
+DEBUG = False
+ALLOWED_HOSTS = [".vercel.app", ".now.sh" , "localhost", "127.0.0.1"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
