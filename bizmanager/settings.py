@@ -1,10 +1,11 @@
 import os
 import sys
 from pathlib import Path
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", 'django-insecure-change-me')
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['.vercel.app', '.now.sh', 'gestion-pme-django.onrender.com', '.onrender.com', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app', 'https://gestion-pme-django.onrender.com', 'https://*.onrender.com']
 
@@ -49,11 +50,22 @@ TEMPLATES = [{
 
 WSGI_APPLICATION = 'bizmanager.wsgi.application'
 
-# FIX VERCEL: base de données en écriture dans /tmp
-if os.environ.get('VERCEL') or 'vercel' in sys.modules:
-    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3','NAME': '/tmp/db.sqlite3',}}
+# --- DATABASES : Postgres sur Vercel, SQLite en local ---
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
 else:
-    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3','NAME': BASE_DIR / 'db.sqlite3',}}
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
