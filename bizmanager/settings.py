@@ -4,7 +4,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", 'django-insecure-change-me')
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['.vercel.app', '.now.sh', 'gestion-pme-django.onrender.com', '.onrender.com', 'localhost', '127.0.0.1']
 
 # FIX 403 CSRF sur Vercel
