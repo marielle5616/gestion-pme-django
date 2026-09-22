@@ -4,7 +4,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", 'django-insecure-change-me')
 DEBUG = False
-ALLOWED_HOSTS = [".vercel.app", ".now.sh" , "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', 'gestion-pme-django.onrender.com', '.onrender.com', 'localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app', 'https://gestion-pme-django.onrender.com', 'https://*.onrender.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -46,7 +47,6 @@ TEMPLATES = [{
 }]
 
 WSGI_APPLICATION = 'bizmanager.wsgi.application'
-
 DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3','NAME': BASE_DIR / 'db.sqlite3',}}
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -61,10 +61,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# ✅ FIX CSS - c'était ça qui cassait ton design
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'core.CustomUser'
@@ -83,18 +83,3 @@ AUTHENTICATION_BACKENDS = [
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = 1
 AXES_LOCKOUT_URL = '/'
-AXES_FAILURE_LIMIT = 5
-AXES_COOLOFF_TIME = 1
-AXES_LOCKOUT_URL = '/'
-#deployment settings
-
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-#pour render
-CRSF_TRUSTED_ORIGINS = ['https://gestion-pme-django.onrender.com','https://*.onrender.com',
-]
-#verification
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh', 'gestion-pme-django.onrender.com', '.onrender.com', 'localhost', '127.0.0.1']
-CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app', 'https://gestion-pme-django.onrender.com']
